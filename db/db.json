@@ -1,6 +1,16 @@
 [
     {
-        "title":"Test Title",
-        "text":"Test text"
+        "title": "Test Title",
+        "text": "Test text"
+    },
+    {
+        "title": "first note",
+        "text": "some text as first note",
+        "note_id": "1d2c"
+    },
+    {
+        "title": "Insomnia",
+        "text": "added using insomnia",
+        "note_id": "400b"
     }
 ]
