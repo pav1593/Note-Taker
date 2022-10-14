@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
-const { readFromFile, readAndAppend } = require('./helpers/fsUtils');
+const { readFromFile, readAndAppend, writeToFile} = require('./helpers/fsUtils');
 const uuid = require('./helpers/uuid');
+const notes = require('./db/db.json');
 
 
 const PORT = process.env.PORT || 3001;
@@ -36,7 +37,7 @@ app.post('/api/notes', (req, res) => {
     const newNote = {
       title,
       text,
-      note_id: uuid()
+      id: uuid()
     };
 
     readAndAppend(newNote, './db/db.json');
@@ -51,7 +52,41 @@ app.post('/api/notes', (req, res) => {
 
 // DELETE /api/notes/:id should receive a query parameter that contains the id of a note to delete. To delete a note, you'll need to read all notes from the db.json file, remove the note with the given id property, and then rewrite the notes to the db.json file.
 
-// GET Route for homepage
+app.delete('/api/notes/:id', (req,res)=>{
+
+  if (req.params.id) {
+    console.info(`${req.method} note request received for ${req.params.id}`);
+  
+    for (let i = 0; i < notes.length; i++) {
+      
+      const {title,text,id} = notes[i];
+
+      console.log(i,title,text,id);
+
+      if (id === req.params.id) {
+        console.log(`Removing note ${id}`);  
+
+        const response = {
+          status: 'deleted!',
+          title,
+          text,
+          id
+        };
+
+        res.json(response);
+        notes.splice(i,1);
+        writeToFile('./db/db.json',notes);
+        return;
+      }
+
+    }
+       res.status(404).send('Note ID not found');
+  } else {
+    res.status(400).send('Note ID not provided');
+  }
+});
+
+// GET wildcared route to homepage
 app.get('/*', (req, res) =>
   res.sendFile(path.join(__dirname, './public/index.html'))
 );
