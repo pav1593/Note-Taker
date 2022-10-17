@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { readFromFile, readAndAppend, writeToFile} = require('./helpers/fsUtils');
+const { readFromFile, readAndAppend, writeToFile, deleteAndSaveByID} = require('./helpers/fsUtils');
 const uuid = require('./helpers/uuid');
 const notes = require('./db/db.json');
 
@@ -55,33 +55,13 @@ app.post('/api/notes', (req, res) => {
 app.delete('/api/notes/:id', (req,res)=>{
 
   if (req.params.id) {
-    console.info(`${req.method} note request received for ${req.params.id}`);
-  
-    for (let i = 0; i < notes.length; i++) {
-      
-      const {title,text,id} = notes[i];
 
-      console.log(i,title,text,id);
-
-      if (id === req.params.id) {
-        console.log(`Removing note ${id}`);  
-
-        const response = {
-          status: 'deleted!',
-          title,
-          text,
-          id
-        };
-
-        res.json(response);
-        notes.splice(i,1);
-        writeToFile('./db/db.json',notes);
+        deleteAndSaveByID(req.params.id,'./db/db.json');
+        res.status(201).send(`${req.params.id} deleted!`);
         return;
-      }
 
-    }
-       res.status(404).send('Note ID not found');
-  } else {
+    } else {
+
     res.status(400).send('Note ID not provided');
   }
 });
